@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Script from 'next/script';
 
-// 1. 질문 풀 (총 15개 중 랜덤 10개 추출)
+// 1. 15개 전체 질문 리스트 복구
 const allQuestions = [
   { id: 1, question: "오늘 아침 눈을 떴을 때 느낌은?", options: [{ text: "고요한 새벽이 더 길었으면", score: -2 }, { text: "재미있는 일이 생길 것 같아!", score: 2 }] },
   { id: 2, question: "외출 전 거울을 본 내 모습은?", options: [{ text: "조용히 셀카 한 장!", score: -1 }, { text: "당장 친구 불러!", score: 1 }] },
@@ -22,7 +23,6 @@ const allQuestions = [
   { id: 15, question: "새로운 취미를 시작한다면?", options: [{ text: "정적인 명상이나 요가", score: -2 }, { text: "동적인 서핑이나 댄스", score: 2 }] },
 ];
 
-// 2. 8가지 세분화된 결과 데이터
 const results = [
   { threshold: 15, name: "비비드 옐로우 (Vivid Yellow)", color: "#FFDE17", energy: 98, desc: "창의적인 에너지가 폭발하는 상태입니다!", therapy: "심리학적으로 노란색은 지적 능력과 자신감을 자극합니다. 현재 당신의 뇌는 새로운 아이디어를 수용할 준비가 완벽히 되어 있습니다. 컬러 테라피 관점에서 이 색은 소화계 기능을 돕고 근육에 활력을 불어넣습니다. 오늘 당신의 직관을 믿고 평소 망설였던 프로젝트를 시작해 보세요." },
   { threshold: 10, name: "번트 오렌지 (Burnt Orange)", color: "#CC5500", energy: 80, desc: "열정적으로 목표를 향해 달리고 있군요.", therapy: "오렌지는 사교성과 즐거움을 상징합니다. 하지만 '번트' 계열은 단순한 즐거움을 넘어 성숙한 열정을 의미하죠. 현재 당신은 성과를 내기 위해 에너지를 집중하고 있는 상태입니다. 오렌지 컬러는 우울감을 해소하고 활력을 높여주는 효과가 있으니, 이 흐름을 타고 중요한 업무를 처리하기 좋습니다." },
@@ -40,7 +40,7 @@ export default function ColorLog() {
   const [totalScore, setTotalScore] = useState(0);
   const [loadingStatus, setLoadingStatus] = useState("데이터 수집 중...");
 
-  // 질문 10개 랜덤 추출
+  // 15개 질문 중 랜덤하게 10개를 뽑아 퀴즈 세트 구성
   const quizSet = useMemo(() => {
     return [...allQuestions].sort(() => Math.random() - 0.5).slice(0, 10);
   }, [step === "start"]);
@@ -80,7 +80,6 @@ export default function ColorLog() {
       text: `나의 감정 주파수 결과는 [${finalResult.name}] 입니다. 당신의 컬러도 확인해보세요!`,
       url: typeof window !== 'undefined' ? window.location.href : '',
     };
-
     try {
       if (navigator.share) {
         await navigator.share(shareData);
@@ -143,10 +142,6 @@ export default function ColorLog() {
               <motion.h2 key={loadingStatus} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-2xl font-black tracking-tighter mb-4 text-gray-900">Color Analysis</motion.h2>
               <p className="text-gray-400 font-bold text-sm tracking-widest uppercase animate-pulse">{loadingStatus}</p>
             </div>
-            <div className="absolute bottom-10 w-full max-w-xs px-6 py-6 bg-gray-50/50 backdrop-blur-sm border border-gray-100 rounded-[2.5rem] text-center">
-              <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-2">Notice</p>
-              <p className="text-[11px] text-gray-400 font-medium leading-relaxed">분석 결과를 생성하는 동안<br />잠시만 기다려 주세요.</p>
-            </div>
           </motion.div>
         )}
 
@@ -154,19 +149,14 @@ export default function ColorLog() {
           <motion.div key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-md w-full py-6">
             <div className="bg-white rounded-[3rem] shadow-[0_30px_70px_-20px_rgba(0,0,0,0.15)] overflow-hidden mb-8 border border-gray-50">
               <div style={{ backgroundColor: finalResult.color }} className="h-80 w-full flex items-end p-10 transition-colors duration-1000">
-                {/* 🎨 가독성 개선: 반투명 다크 배경 추가 */}
-                <div className="bg-black/40 backdrop-blur-xl px-5 py-2 rounded-full text-white text-[10px] font-black tracking-widest uppercase border border-white/20">
-                  ENERGY LEVEL {finalResult.energy}%
-                </div>
+                <div className="bg-black/40 backdrop-blur-xl px-5 py-2 rounded-full text-white text-[10px] font-black tracking-widest uppercase border border-white/20">ENERGY LEVEL {finalResult.energy}%</div>
               </div>
               <div className="p-10">
                 <span className="text-[10px] font-black text-gray-300 tracking-[0.2em] uppercase mb-2 block">Official Log 2026-02</span>
                 <h2 className="text-4xl font-black text-gray-900 mb-6 tracking-tighter">{finalResult.name}</h2>
                 <p className="text-gray-600 font-bold leading-relaxed mb-10 text-lg break-keep">{finalResult.desc}</p>
                 <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 mb-10 text-left">
-                  <h3 className="text-xs font-black text-black mb-4 tracking-wider uppercase flex items-center">
-                    <span className="w-4 h-[2px] bg-black mr-2" /> Color Therapy Guide
-                  </h3>
+                  <h3 className="text-xs font-black text-black mb-4 tracking-wider uppercase flex items-center"><span className="w-4 h-[2px] bg-black mr-2" /> Color Therapy Guide</h3>
                   <p className="text-[13px] text-gray-500 leading-relaxed font-medium">{finalResult.therapy}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -175,23 +165,18 @@ export default function ColorLog() {
                 </div>
               </div>
             </div>
-            <div className="w-full p-10 bg-white border-2 border-dashed border-gray-100 rounded-[2.5rem] text-center">
-              <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-4">Advertisement Area</p>
-              <div className="w-full p-10 bg-white border-2 border-dashed border-gray-100 rounded-[2.5rem] text-center overflow-hidden">
-                <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-4">Advertisement</p>
 
-                {/* 실제 애드센스 광고 단위 코드를 아래에 붙여넣으세요 */}
-                <ins className="adsbygoogle"
-                  style={{ display: 'block' }}
-                  data-ad-client="ca-pub-1233645734653401" // 본인 ID로 교체
-                  data-ad-slot="5560736706"               // 본인 광고 단위 ID로 교체
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"></ins>
-
-                <Script id="adsense-init">
-                  {`(adsbygoogle = window.adsbygoogle || []).push({});`}
-                </Script>
-              </div>
+            <div className="w-full p-10 bg-white border-2 border-dashed border-gray-100 rounded-[2.5rem] text-center overflow-hidden">
+              <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-4">Advertisement</p>
+              <ins className="adsbygoogle"
+                style={{ display: 'block' }}
+                data-ad-client="ca-pub-1233645734653401"
+                data-ad-slot="YOUR_AD_SLOT_ID"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+              <Script id="adsense-init">
+                {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+              </Script>
             </div>
           </motion.div>
         )}
