@@ -177,7 +177,21 @@ export default function ColorLog() {
             </div>
             <div className="w-full p-10 bg-white border-2 border-dashed border-gray-100 rounded-[2.5rem] text-center">
               <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-4">Advertisement Area</p>
-              <div className="h-32 flex items-center justify-center text-gray-200 font-bold text-xs">광고 승인 후 이곳에 <br /> 애드센스 코드를 삽입하세요.</div>
+              <div className="w-full p-10 bg-white border-2 border-dashed border-gray-100 rounded-[2.5rem] text-center overflow-hidden">
+                <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-4">Advertisement</p>
+
+                {/* 실제 애드센스 광고 단위 코드를 아래에 붙여넣으세요 */}
+                <ins className="adsbygoogle"
+                  style={{ display: 'block' }}
+                  data-ad-client="ca-pub-1233645734653401" // 본인 ID로 교체
+                  data-ad-slot="5560736706"               // 본인 광고 단위 ID로 교체
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"></ins>
+
+                <Script id="adsense-init">
+                  {`(adsbygoogle = window.adsbygoogle || []).push({});`}
+                </Script>
+              </div>
             </div>
           </motion.div>
         )}

@@ -24,6 +24,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* 2. 구글 애드센스 기본 스크립트 (본인 ca-pub ID로 수정) */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1233645734653401"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
