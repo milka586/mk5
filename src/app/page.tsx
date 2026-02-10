@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Script from 'next/script';
 
-// 1. 15개 전체 질문 리스트 복구
+// 1. 15개 전체 질문 리스트
 const allQuestions = [
   { id: 1, question: "오늘 아침 눈을 떴을 때 느낌은?", options: [{ text: "고요한 새벽이 더 길었으면", score: -2 }, { text: "재미있는 일이 생길 것 같아!", score: 2 }] },
   { id: 2, question: "외출 전 거울을 본 내 모습은?", options: [{ text: "조용히 셀카 한 장!", score: -1 }, { text: "당장 친구 불러!", score: 1 }] },
@@ -25,13 +25,13 @@ const allQuestions = [
 
 const results = [
   { threshold: 15, name: "비비드 옐로우 (Vivid Yellow)", color: "#FFDE17", energy: 98, desc: "창의적인 에너지가 폭발하는 상태입니다!", therapy: "심리학적으로 노란색은 지적 능력과 자신감을 자극합니다. 현재 당신의 뇌는 새로운 아이디어를 수용할 준비가 완벽히 되어 있습니다. 컬러 테라피 관점에서 이 색은 소화계 기능을 돕고 근육에 활력을 불어넣습니다. 오늘 당신의 직관을 믿고 평소 망설였던 프로젝트를 시작해 보세요." },
-  { threshold: 10, name: "번트 오렌지 (Burnt Orange)", color: "#CC5500", energy: 80, desc: "열정적으로 목표를 향해 달리고 있군요.", therapy: "오렌지는 사교성과 즐거움을 상징합니다. 하지만 '번트' 계열은 단순한 즐거움을 넘어 성숙한 열정을 의미하죠. 현재 당신은 성과를 내기 위해 에너지를 집중하고 있는 상태입니다. 오렌지 컬러는 우울감을 해소하고 활력을 높여주는 효과가 있으니, 이 흐름을 타고 중요한 업무를 처리하기 좋습니다." },
-  { threshold: 5, name: "로즈 핑크 (Rose Pink)", color: "#F49AC2", energy: 65, desc: "사랑스럽고 따뜻한 공감의 주파수입니다.", therapy: "핑크는 무조건적인 사랑과 돌봄을 상징합니다. 현재 당신은 주변 사람들과 정서적으로 깊게 연결되어 있으며, 마음이 매우 부드러워진 상태입니다. 핑크 컬러 테라피는 아드레날린 분비를 조절하여 공격성을 완화하고 심리적 안정을 줍니다. 오늘 소중한 사람과 따뜻한 대화를 나누어 보세요." },
-  { threshold: 2, name: "라벤더 퍼플 (Lavender Purple)", color: "#B57EDC", energy: 55, desc: "직관과 영감이 샘솟는 예술적인 상태입니다.", therapy: "보라색은 예술적 영감과 영성을 자극하는 색입니다. 빨간색의 열정과 파란색의 냉정함이 조화를 이룬 상태죠. 라벤더 컬러는 신경 과민을 억제하고 수면의 질을 높이는 데 도움을 줍니다. 현재 당신은 복잡한 현실보다는 내면의 깊은 통찰을 즐기기에 아주 적합한 상태입니다." },
-  { threshold: -2, name: "차분한 세이지 (Sage Green)", color: "#9CAF88", energy: 45, desc: "내면의 균형이 잘 잡힌 평온한 상태입니다.", therapy: "초록색은 자연의 색으로 심신의 균형을 맞추는 데 최고의 색입니다. 세이지 그린이 나온 당신은 현재 외부 자극에 흔들리지 않는 단단한 마음을 가지고 있습니다. 이 컬러는 안구의 피로를 풀어주고 혈압을 낮추는 컬러 테라피 효과가 있습니다. 지금의 여유를 충분히 음미하며 휴식을 취하세요." },
-  { threshold: -6, name: "스카이 블루 (Sky Blue)", color: "#87CEEB", energy: 35, desc: "구속받지 않는 자유로움이 느껴집니다.", therapy: "파란색은 소통과 자유를 상징합니다. 하늘색은 당신의 마음이 어떤 편견이나 압박에서 벗어나 맑게 정화되었음을 뜻합니다. 심리학적으로 파란색은 맥박수를 낮추고 체온을 떨어뜨려 마음을 차분하게 가라앉혀 줍니다. 새로운 환경으로 떠나거나 창조적인 구상을 하기에 아주 좋은 타이밍입니다." },
-  { threshold: -10, name: "미드나잇 블루 (Midnight Blue)", color: "#191970", energy: 20, desc: "고요하고 깊은 사색의 시간을 지나고 있네요.", therapy: "깊은 남색은 신뢰와 권위, 그리고 깊은 고요함을 상징합니다. 현재 당신은 에너지를 외부로 쓰기보다 내면 깊숙한 곳으로 응축하고 있습니다. 이 색상은 불면증과 불안 해소에 효과적이며 분석적인 능력을 높여줍니다. 오늘 밤은 휴대폰을 멀리하고 책을 읽거나 명상을 하며 자신과 대화해 보세요." },
-  { threshold: -99, name: "차콜 그레이 (Charcoal Grey)", color: "#36454F", energy: 10, desc: "냉철한 판단과 효율성이 필요한 시점입니다.", therapy: "회색은 이성적 사고와 철저함을 상징합니다. 현재 당신은 감정에 휘둘리지 않고 상황을 객관적으로 보려 노력하고 있군요. 차콜 컬러 테라피는 혼란스러운 감정을 차단하고 집중력을 높이는 데 도움을 줍니다. 다만 에너지가 많이 고갈된 상태일 수 있으니, 계획적인 휴식 시간을 반드시 확보하시길 권장합니다." },
+  { threshold: 10, name: "번트 오렌지 (Burnt Orange)", color: "#CC5500", energy: 80, desc: "열정적으로 목표를 향해 달리고 있군요.", therapy: "오렌지는 사교성과 즐거움을 상징합니다. 현재 당신은 성과를 내기 위해 에너지를 집중하고 있는 상태입니다. 오렌지 컬러는 우울감을 해소하고 활력을 높여주는 효과가 있으니, 이 흐름을 타고 중요한 업무를 처리하기 좋습니다." },
+  { threshold: 5, name: "로즈 핑크 (Rose Pink)", color: "#F49AC2", energy: 65, desc: "사랑스럽고 따뜻한 공감의 주파수입니다.", therapy: "핑크는 무조건적인 사랑과 돌봄을 상징합니다. 현재 당신은 주변 사람들과 정서적으로 깊게 연결되어 있으며 마음이 부드러워진 상태입니다. 핑크 컬러 테라피는 심리적 안정을 줍니다. 오늘 소중한 사람과 따뜻한 대화를 나누어 보세요." },
+  { threshold: 2, name: "라벤더 퍼플 (Lavender Purple)", color: "#B57EDC", energy: 55, desc: "직관과 영감이 샘솟는 예술적인 상태입니다.", therapy: "보라색은 예술적 영감과 영성을 자극하는 색입니다. 라벤더 컬러는 신경 과민을 억제하고 수면의 질을 높이는 데 도움을 줍니다. 현재 당신은 내면의 깊은 통찰을 즐기기에 아주 적합한 상태입니다." },
+  { threshold: -2, name: "차분한 세이지 (Sage Green)", color: "#9CAF88", energy: 45, desc: "내면의 균형이 잘 잡힌 평온한 상태입니다.", therapy: "초록색은 자연의 색으로 심신의 균형을 맞춥니다. 세이지 그린이 나온 당신은 현재 외부 자극에 흔들리지 않는 단단한 마음을 가지고 있습니다. 지금의 여유를 충분히 음미하며 휴식을 취하세요." },
+  { threshold: -6, name: "스카이 블루 (Sky Blue)", color: "#87CEEB", energy: 35, desc: "구속받지 않는 자유로움이 느껴집니다.", therapy: "파란색은 소통과 자유를 상징합니다. 하늘색은 당신의 마음이 어떤 편견이나 압박에서 벗어나 정화되었음을 뜻합니다. 새로운 환경으로 떠나거나 창조적인 구상을 하기에 아주 좋은 타이밍입니다." },
+  { threshold: -10, name: "미드나잇 블루 (Midnight Blue)", color: "#191970", energy: 20, desc: "고요하고 깊은 사색의 시간을 지나고 있네요.", therapy: "깊은 남색은 신뢰와 권위를 상징합니다. 현재 당신은 에너지를 내면 깊숙한 곳으로 응축하고 있습니다. 이 색상은 불면증 해소에 효과적입니다. 오늘 밤은 명상을 하며 자신과 대화해 보세요." },
+  { threshold: -99, name: "차콜 그레이 (Charcoal Grey)", color: "#36454F", energy: 10, desc: "냉철한 판단과 효율성이 필요한 시점입니다.", therapy: "회색은 이성적 사고를 상징합니다. 현재 당신은 감정에 휘둘리지 않고 상황을 객관적으로 보려 노력하고 있군요. 다만 에너지가 많이 고갈된 상태일 수 있으니, 계획적인 휴식 시간을 반드시 확보하세요." },
 ];
 
 export default function ColorLog() {
@@ -40,13 +40,23 @@ export default function ColorLog() {
   const [totalScore, setTotalScore] = useState(0);
   const [loadingStatus, setLoadingStatus] = useState("데이터 수집 중...");
 
-  // 15개 질문 중 랜덤하게 10개를 뽑아 퀴즈 세트 구성
+  // 1. 공유 링크를 타고 들어온 경우 처리 (컴포넌트 마운트 시)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sharedScore = params.get('score');
+
+    if (sharedScore !== null) {
+      setTotalScore(Number(sharedScore));
+      setStep("result"); // 바로 결과 화면으로 점프
+    }
+  }, []);
+
   const quizSet = useMemo(() => {
     return [...allQuestions].sort(() => Math.random() - 0.5).slice(0, 10);
   }, [step === "start"]);
 
   const handleAnswer = (score: number) => {
-    setTotalScore(totalScore + score);
+    setTotalScore(prev => prev + score);
     if (currentIdx < quizSet.length - 1) {
       setCurrentIdx(currentIdx + 1);
     } else {
@@ -74,18 +84,22 @@ export default function ColorLog() {
     return results.find(r => totalScore >= r.threshold) || results[results.length - 1];
   }, [totalScore, step]);
 
+  // 2. 결과값이 포함된 동적 공유 링크 생성 함수
   const handleShare = async () => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}?score=${totalScore}`;
+
     const shareData = {
       title: "컬러로그 (Color Log)",
       text: `나의 감정 주파수 결과는 [${finalResult.name}] 입니다. 당신의 컬러도 확인해보세요!`,
-      url: typeof window !== 'undefined' ? window.location.href : '',
+      url: shareUrl,
     };
+
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(window.location.href);
-        alert("링크가 클립보드에 복사되었습니다!");
+        await navigator.clipboard.writeText(shareUrl);
+        alert("결과 링크가 클립보드에 복사되었습니다!");
       }
     } catch (err) {
       console.error("공유 실패:", err);
@@ -135,9 +149,6 @@ export default function ColorLog() {
               <div className="relative w-40 h-40 mb-12">
                 <motion.div className="absolute inset-0 border-t-2 border-r-2 border-black/10 rounded-full" animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} />
                 <motion.div className="absolute inset-4 border-t-4 border-l-4 rounded-full" style={{ borderTopColor: '#FFDE17', borderLeftColor: '#87CEEB', borderRightColor: 'transparent', borderBottomColor: 'transparent' }} animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }} />
-                <motion.div className="absolute inset-10 bg-black/5 rounded-full flex items-center justify-center" animate={{ scale: [0.9, 1.1, 0.9] }} transition={{ repeat: Infinity, duration: 1 }}>
-                  <div className="w-2 h-2 bg-black rounded-full" />
-                </motion.div>
               </div>
               <motion.h2 key={loadingStatus} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-2xl font-black tracking-tighter mb-4 text-gray-900">Color Analysis</motion.h2>
               <p className="text-gray-400 font-bold text-sm tracking-widest uppercase animate-pulse">{loadingStatus}</p>
@@ -160,7 +171,7 @@ export default function ColorLog() {
                   <p className="text-[13px] text-gray-500 leading-relaxed font-medium">{finalResult.therapy}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <button onClick={() => window.location.reload()} className="py-5 bg-gray-100 rounded-2xl font-black text-gray-800 hover:bg-gray-200 transition text-sm">다시하기</button>
+                  <button onClick={() => window.location.href = window.location.origin} className="py-5 bg-gray-100 rounded-2xl font-black text-gray-800 hover:bg-gray-200 transition text-sm">다시하기</button>
                   <button onClick={handleShare} className="py-5 bg-black text-white rounded-2xl font-black hover:opacity-90 transition text-sm shadow-lg shadow-black/10">공유하기</button>
                 </div>
               </div>
